@@ -15,6 +15,7 @@
         #reader {
             width: 300px;
             margin: 20px auto;
+            display: none; /* QR-код будет показан только после нажатия кнопки */
         }
         button {
             padding: 10px 20px;
@@ -26,31 +27,38 @@
 <body>
     <h1>Сканирование QR-кода</h1>
     <button id="scanButton">Отсканировать QR-код</button>
-    <div id="reader" style="display: none;"></div>
+    <div id="reader"></div>
     <script>
+        // Кнопка для запуска сканирования
         const scanButton = document.getElementById('scanButton');
         const reader = document.getElementById('reader');
+        let html5QrCode;
 
         scanButton.addEventListener('click', () => {
-            reader.style.display = 'block';
-            const html5QrCode = new Html5Qrcode("reader");
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
 
+            // Показать блок сканера
+            reader.style.display = 'block';
+
+            // Запустить сканирование
             html5QrCode.start(
-                { facingMode: "environment" }, // Камера по умолчанию
+                { facingMode: "environment" }, // Использовать заднюю камеру
                 {
-                    fps: 10,    // Кадры в секунду
-                    qrbox: 250  // Размер окна сканирования
+                    fps: 10,    // Количество кадров в секунду
+                    qrbox: 250  // Размер области для сканирования
                 },
                 (decodedText) => {
-                    alert(`QR-код отсканирован: ${decodedText}`);
+                    alert(`QR-код: ${decodedText}`);
                     html5QrCode.stop();
                     reader.style.display = 'none';
                 },
                 (errorMessage) => {
                     console.warn(`Ошибка сканирования: ${errorMessage}`);
                 }
-            ).catch((err) => {
-                console.error(`Ошибка инициализации сканера: ${err}`);
+            ).catch(err => {
+                console.error(`Ошибка запуска сканера: ${err}`);
             });
         });
     </script>
